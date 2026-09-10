@@ -1,25 +1,27 @@
-import NoteItem from "./NoteItem";
-import Card from "./ui/Card";
+import ItemAnotacao from "./NoteItem";
+import Cartao from "./ui/Card";
 
-const NoteList = ({ items, onRemove, onDetails }) => {
+const ListaAnotacoes = ({ itens, onRemove, onDetails }) => {
   return (
-    <Card title={`Anotações (${items.length})`}>
+    <Cartao titulo={`Anotações (${itens.length})`}>
       <ul className="divide-y -mx-4">
-        {items.length === 0 ? (
-          <li className="p-4 text-gray-500">Nenhuma anotação encontrada</li>
+        {itens.length === 0 ? (
+          <li className="p-4 text-gray-500">
+            Nenhuma anotação encontrada
+          </li>
         ) : (
-          items.map((note) => (
-            <NoteItem
-              key={note.id}
-              note={note}
+          itens.map((anotacao) => (
+            <ItemAnotacao
+              key={anotacao.id}
+              anotacao={anotacao}
               onRemove={onRemove}
               onDetails={onDetails}
             />
           ))
         )}
       </ul>
-    </Card>
+    </Cartao>
   );
 };
 
-export default NoteList;
+export default ListaAnotacoes;

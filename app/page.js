@@ -1,37 +1,49 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import NoteForm from "./components/NoteForm";
-import NoteList from "./components/NoteList";
-import Button from "./components/ui/Button";
+import FormularioAnotacao from "./components/NoteForm";
+import ListaAnotacoes from "./components/NoteList";
+import Botao from "./components/ui/Button";
 
-const HomePage = () => {
-  const [notes, setNotes] = useState([]);
-  const [selectedNote, setSelectedNote] = useState(null);
+const PaginaInicial = () => {
+  const [anotacoes, setAnotacoes] = useState([]);
+  const [anotacaoSelecionada, setAnotacaoSelecionada] = useState(null);
+  const [armazenamentoCarregado, setArmazenamentoCarregado] = useState(false);
 
   useEffect(() => {
-    const savedNotes = localStorage.getItem("notes");
-    if (savedNotes) {
+    const anotacoesSalvas = localStorage.getItem("anotacoes");
+
+    if (anotacoesSalvas) {
       try {
-        setNotes(JSON.parse(savedNotes));
+        setAnotacoes(JSON.parse(anotacoesSalvas));
       } catch {
-        localStorage.removeItem("notes");
+        localStorage.removeItem("anotacoes");
       }
     }
+
+    setArmazenamentoCarregado(true);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("notes", JSON.stringify(notes));
-  }, [notes]);
+    if (!armazenamentoCarregado) return;
 
-  const handleAdd = (newNote) => {
-    setNotes((prev) => [...prev, newNote]);
+    localStorage.setItem("anotacoes", JSON.stringify(anotacoes));
+  }, [anotacoes, armazenamentoCarregado]);
+
+  const adicionarAnotacao = (novaAnotacao) => {
+    setAnotacoes((anotacoesAnteriores) => [
+      ...anotacoesAnteriores,
+      novaAnotacao,
+    ]);
   };
 
-  const handleRemove = (id) => {
-    setNotes((prev) => prev.filter((note) => note.id !== id));
-    if (selectedNote?.id === id) {
-      setSelectedNote(null);
+  const excluirAnotacao = (id) => {
+    setAnotacoes((anotacoesAnteriores) =>
+      anotacoesAnteriores.filter((anotacao) => anotacao.id !== id)
+    );
+
+    if (anotacaoSelecionada?.id === id) {
+      setAnotacaoSelecionada(null);
     }
   };
 
@@ -47,53 +59,71 @@ const HomePage = () => {
               Crie, adicione, exclua e consulte suas anotações.
             </p>
           </div>
+
           <span className="text-sm font-medium text-gray-700">
-            {notes.length} {notes.length === 1 ? "anotação" : "anotações"}
+            {anotacoes.length}{" "}
+            {anotacoes.length === 1 ? "anotação" : "anotações"}
           </span>
         </header>
 
-        <NoteForm onAdd={handleAdd} />
+        <FormularioAnotacao onAdd={adicionarAnotacao} />
 
-        <NoteList
-          items={notes}
-          onRemove={handleRemove}
-          onDetails={setSelectedNote}
+        <ListaAnotacoes
+          itens={anotacoes}
+          onRemove={excluirAnotacao}
+          onDetails={setAnotacaoSelecionada}
         />
 
-        {selectedNote && (
+        {anotacaoSelecionada && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6"
-            onClick={() => setSelectedNote(null)}
+            onClick={() => setAnotacaoSelecionada(null)}
           >
             <div
               className="w-full max-w-3xl rounded bg-white shadow"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(evento) => evento.stopPropagation()}
             >
               <div className="flex items-center justify-between border-b px-4 py-3">
                 <h2 className="font-medium text-gray-900">
                   Detalhes da anotação
                 </h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
+
+                <Botao
+                  variante="ghost"
+                  tamanho="sm"
                   type="button"
-                  onClick={() => setSelectedNote(null)}
+                  onClick={() => setAnotacaoSelecionada(null)}
                 >
                   Fechar
-                </Button>
+                </Botao>
               </div>
+
               <div className="space-y-4 p-4">
                 <div>
-                  <p className="block text-sm font-medium mb-1 text-gray-700">Título</p>
-                  <p className="text-gray-900">{selectedNote.titulo}</p>
+                  <p className="block text-sm font-medium mb-1 text-gray-700">
+                    Título
+                  </p>
+                  <p className="text-gray-900">
+                    {anotacaoSelecionada.titulo}
+                  </p>
                 </div>
+
                 <div>
-                  <p className="block text-sm font-medium mb-1 text-gray-700">Conteúdo</p>
-                  <p className="whitespace-pre-wrap text-gray-700">{selectedNote.conteudo}</p>
+                  <p className="block text-sm font-medium mb-1 text-gray-700">
+                    Conteúdo
+                  </p>
+                  <p className="whitespace-pre-wrap text-gray-700">
+                    {anotacaoSelecionada.conteudo}
+                  </p>
                 </div>
+
                 <div>
-                  <p className="block text-sm font-medium mb-1 text-gray-700">Data</p>
-                  <p className="text-sm text-gray-600">{selectedNote.data}</p>
+                  <p className="block text-sm font-medium mb-1 text-gray-700">
+                    Data
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {anotacaoSelecionada.data}
+                  </p>
                 </div>
               </div>
             </div>
@@ -104,4 +134,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default PaginaInicial;
